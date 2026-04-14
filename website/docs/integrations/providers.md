@@ -43,6 +43,8 @@ In the `model:` config section, you can use either `default:` or `model:` as the
 
 :::info Codex Note
 The OpenAI Codex provider authenticates via device code (open a URL, enter a code). Hermes stores the resulting credentials in its own auth store under `~/.hermes/auth.json` and can import existing Codex CLI credentials from `~/.codex/auth.json` when present. No Codex CLI installation is required.
+
+If you run Hermes inside Docker and also want shell commands inside that container to invoke the `codex` executable directly, build a derived Docker image that installs `@openai/codex`. See the [Docker guide](/docs/user-guide/docker#extending-the-image).
 :::
 
 :::warning

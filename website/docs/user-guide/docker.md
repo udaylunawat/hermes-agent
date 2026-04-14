@@ -111,6 +111,36 @@ services:
 
 Start with `docker compose up -d` and view logs with `docker compose logs -f hermes`.
 
+## Extending the image
+
+If you want extra tools available inside the Hermes container, build a derived image instead of modifying the running container.
+
+Example: install the OpenAI Codex CLI so Hermes-managed shells can call `codex` directly:
+
+```dockerfile
+FROM nousresearch/hermes-agent:latest
+
+RUN npm install -g @openai/codex
+```
+
+Then point Compose at that Dockerfile:
+
+```yaml
+services:
+  hermes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hermes-agent-codex:local
+    command: gateway run
+    volumes:
+      - ~/.hermes:/opt/data
+```
+
+If the CLI needs its own auth files, copy or mount them into the Hermes data volume (for example under `/opt/data/home/.codex`) and set `HOME` accordingly when invoking the tool inside the container.
+
+This is separate from Hermes's built-in Codex provider support. The provider can authenticate without the `codex` binary; this section is only for users who want the Codex CLI executable available inside containerized terminal sessions.
+
 ## Resource limits
 
 The Hermes container needs moderate resources. Recommended minimums:
@@ -194,6 +224,8 @@ The container runs as root by default. If your host `~/.hermes/` was created by 
 ```sh
 chmod -R 755 ~/.hermes
 ```
+
+If you choose to remap container ownership with `HERMES_UID` / `HERMES_GID`, test that override carefully on macOS. Reusing a host group ID like `20` can fail if that GID already exists inside the image, causing the entrypoint's `groupmod` step to loop and the container to restart repeatedly. In practice, setting only `HERMES_UID` is often enough for a host-mounted data directory.
 
 ### Browser tools not working
 

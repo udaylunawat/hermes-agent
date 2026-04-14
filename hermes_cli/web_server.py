@@ -315,8 +315,16 @@ async def get_status():
         gateway_exit_reason = runtime.get("exit_reason")
         gateway_updated_at = runtime.get("updated_at")
         if not gateway_running:
-            gateway_state = gateway_state if gateway_state in ("stopped", "startup_failed") else "stopped"
-            gateway_platforms = {}
+            # When Hermes runs inside Docker, the host dashboard may not be
+            # able to observe the container PID namespace. In that case trust
+            # the persisted runtime file as the source of truth for the
+            # current gateway state instead of forcing "stopped".
+            if runtime.get("kind") == "hermes-gateway" and gateway_state in ("starting", "running"):
+                gateway_running = True
+                gateway_pid = runtime.get("pid")
+            else:
+                gateway_state = gateway_state if gateway_state in ("stopped", "startup_failed") else "stopped"
+                gateway_platforms = {}
 
     active_sessions = 0
     try:

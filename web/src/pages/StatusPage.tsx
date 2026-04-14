@@ -86,7 +86,7 @@ export default function StatusPage() {
     {
       icon: Activity,
       label: t.status.activeSessions,
-      value: status.active_sessions > 0 ? `${status.active_sessions} ${t.status.running.toLowerCase()}` : t.status.noneRunning,
+      value: `${status.active_sessions} ${t.common.active}`,
       badgeText: status.active_sessions > 0 ? t.common.live : t.common.off,
       badgeVariant: (status.active_sessions > 0 ? "success" : "outline") as "success" | "outline",
     },
